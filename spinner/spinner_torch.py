@@ -56,7 +56,6 @@ def _to_device(img_bgr: NDArray) -> torch.Tensor:
 
 class SpinnerAppTorch:
     def __init__(self):
-        print(torch.cuda.is_available())
         self.params = hello_imgui.RunnerParams()
         self.params.app_window_params.window_title = "Image Spinner"
         self.params.app_window_params.window_geometry.size = (720, 620)
