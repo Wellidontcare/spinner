@@ -19,7 +19,7 @@ class SpinnerApp:
         self.image_file = None
         self.frame_counter = 0
         self.speed = 1
-        self.sleep_time = 0
+        self.clockwise = False
         immvision.use_bgr_color_order()
 
 
@@ -30,7 +30,8 @@ class SpinnerApp:
         imgui.separator_text("Image")
 
         h, w = self.spin_image.shape[:2]
-        rot_mat = cv2.getRotationMatrix2D((w/2, h/2), self.frame_counter*self.speed, 1)
+        direction = -1 if self.clockwise else 1
+        rot_mat = cv2.getRotationMatrix2D((w/2, h/2), direction*self.frame_counter*self.speed, 1)
         self.spin_image = cv2.warpAffine(self.original, rot_mat, (w, h))
 
 
@@ -53,9 +54,11 @@ class SpinnerApp:
             h, w, _ = self.big_original.shape
             self.image = self.big_original.copy().astype(np.float64)
             self.image2 = cv2.warpAffine(self.image, rot_mat, (w, h))
+
+            direction = -1 if self.clockwise else 1
             for i in range(1, 20*(image_count)):
                 self.image += self.image2
-                rot_mat = cv2.getRotationMatrix2D((w/2, h/2), i*(360/image_count), 1)
+                rot_mat = cv2.getRotationMatrix2D((w/2, h/2), direction*i*(360/image_count), 1)
                 self.image2 = cv2.warpAffine(self.big_original, rot_mat, (w, h))
             self.image[:, :, 0] = 255*(self.image[:, :, 0]/self.image[:, :, 0].max())
             self.image[:, :, 1] = 255*(self.image[:, :, 1]/self.image[:, :, 1].max())
@@ -63,6 +66,8 @@ class SpinnerApp:
             self.image = self.image.astype(np.uint8)
             save_location = pfd.save_file("Save image", Path().home().as_posix())
             cv2.imwrite(save_location.result(), self.image)
+        
+        _, self.clockwise = imgui.checkbox("Clockwise", self.clockwise)
 
         _, self.speed = imgui.slider_float("Speed", self.speed, 1.0, 180.0)
        
