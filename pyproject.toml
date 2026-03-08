@@ -1,0 +1,17 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "spinner"
+version = "0.1.0"
+description = "Rotational composite image generator"
+requires-python = ">=3.10"
+dependencies = [
+    "opencv-python",
+    "numpy<2",
+    "imgui-bundle",
+]
+
+[project.scripts]
+spinner = "spinner.__main__:main"
