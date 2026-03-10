@@ -8,6 +8,10 @@ Wonder no longer, just grab this wonderful simulation.
 
 Install via pip: `pip3 install .` inside this folder.
 
+or very cool:
+
+`pip3 install git+https://github.com/Wellidontcare/spinner`
+
 Run via commandline: `spinner [--torch]`
 
 ## Requirements
@@ -19,4 +23,5 @@ Run via commandline: `spinner [--torch]`
 
 The `--torch` flag uses PyTorch with `affine_grid`/`grid_sample` for accelerated batched GPU compositing.
 PyPI's default `torch` wheel is CPU-only. To get CUDA support, install
+
 torch **before** installing this package: https://pytorch.org/get-started/locally/
