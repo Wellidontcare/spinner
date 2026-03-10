@@ -4,6 +4,8 @@ Ever wondered how an image would look like, if you'd spun it on a disc?
 
 Wonder no longer, just grab this wonderful simulation.
 
+Works very well to view zoetropes!
+
 ## Usage
 
 Install via pip: `pip3 install .` inside this folder.
