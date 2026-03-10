@@ -3,6 +3,9 @@ import numpy as np
 from imgui_bundle import hello_imgui, imgui, immvision
 from imgui_bundle import portable_file_dialogs as pfd
 from pathlib import Path
+from PIL import Image
+from urllib.request import urlopen
+from urllib.error import HTTPError
 
 class SpinnerApp:
     def __init__(self):
@@ -16,11 +19,26 @@ class SpinnerApp:
         self.spin_image = np.zeros((512, 512, 3), np.uint8)
         self.original = self.spin_image.copy()
         self.big_original = self.spin_image.copy()
+        self.url = ""
         self.image_file = None
         self.frame_counter = 0
         self.speed = 1
         self.clockwise = False
         immvision.use_bgr_color_order()
+
+    def load_image(self, path: str):
+        if "http" in path:
+            try:
+                self.spin_image = np.array(Image.open(urlopen(path)))[:, :, ::-1]
+            except HTTPError:
+                return
+        else:
+            self.spin_image = cv2.imread(path, cv2.IMREAD_COLOR)
+        self.big_original = self.spin_image.copy()
+        h, w = self.spin_image.shape[:2]
+        ratio = w / h
+        self.spin_image = cv2.resize(self.spin_image, (int(512*ratio), 512))
+        self.original = self.spin_image.copy()
 
 
     def frame(self):
@@ -34,17 +52,14 @@ class SpinnerApp:
         rot_mat = cv2.getRotationMatrix2D((w/2, h/2), direction*self.frame_counter*self.speed, 1)
         self.spin_image = cv2.warpAffine(self.original, rot_mat, (w, h))
 
-
-
         button_width = available_width * 0.5 - imgui.get_style().item_spacing.x * 0.5
+        input_changed, self.url = imgui.input_text("From URL ", self.url)
+        if input_changed and "http" in self.url and self.url.endswith((".png", ".tif", ".jpg", ".jpeg", ".webp")):
+            self.load_image(self.url)
         if imgui.button("Load Image", imgui.ImVec2(button_width, 0)):
-            self.image_file = pfd.open_file("Open Image File", Path().home().as_posix())
-            self.spin_image = cv2.imread(self.image_file.result().pop(), cv2.IMREAD_COLOR)
-            self.big_original = self.spin_image.copy()
-            h, w = self.spin_image.shape[:2]
-            ratio = w / h
-            self.spin_image = cv2.resize(self.spin_image, (int(200*ratio), 200))
-            self.original = self.spin_image.copy()
+            image_file = pfd.open_file("Open Image File", Path().home().as_posix()).result().pop()
+            self.load_image(image_file)
+
 
         imgui.same_line()
         if imgui.button("Create Image", imgui.ImVec2(button_width, 0)):
